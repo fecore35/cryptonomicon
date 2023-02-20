@@ -279,6 +279,12 @@ export default {
     currentTicker() {
       this.graph = [];
     },
+
+    paginatedTickers() {
+      if (this.paginatedTickers.length === 0) {
+        this.page = Math.max(1, this.page - 1);
+      }
+    },
   },
 };
 </script>
