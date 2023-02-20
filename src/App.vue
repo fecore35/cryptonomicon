@@ -168,7 +168,9 @@ export default {
 
   computed: {
     isTickerExists() {
-      return this.tickers?.find(({ name }) => name === this.ticker);
+      return this.tickers?.find(
+        ({ name }) => name.toUpperCase() === this.ticker.toUpperCase()
+      );
     },
   },
 
