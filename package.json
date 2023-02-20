@@ -5,12 +5,15 @@
   "scripts": {
     "serve": "vue-cli-service serve",
     "build": "vue-cli-service build",
-    "lint": "vue-cli-service lint"
+    "deploy": "gh-pages -d dist",
+    "lint": "vue-cli-service lint",
+    "predeploy": "yarn run build"
   },
   "dependencies": {
     "@tailwindcss/forms": "^0.5.3",
     "autoprefixer": "^10",
     "core-js": "^3.8.3",
+    "gh-pages": "^5.0.0",
     "postcss": "^8",
     "tailwindcss": "^3",
     "vue": "^3.2.13"
