@@ -56,6 +56,34 @@
             </svg>
             Add
           </button>
+
+          <div class="flex">
+            <div class="max-w-xs">
+              <label
+                for="wallet"
+                class="block text-sm font-medium text-gray-700"
+                >Filter</label
+              >
+              <div class="mt-1 relative rounded-md shadow-md">
+                <input
+                  v-model="filter"
+                  @input="page = 1"
+                  type="text"
+                  name="wallet"
+                  id="wallet"
+                  class="block w-full pr-10 border-gray-300 text-gray-900 focus:outline-none focus:ring-gray-500 focus:border-gray-500 sm:text-sm rounded-md"
+                  placeholder=""
+                />
+              </div>
+            </div>
+          </div>
+
+          <div
+            v-if="filteredTickers.length === 0 && filter !== ''"
+            class="text-sm text-red-600"
+          >
+            No tickers were found matching your selection.
+          </div>
         </section>
 
         <template v-if="paginatedTickers.length > 0">
@@ -176,6 +204,7 @@ export default {
       tickers: [],
       currentTicker: null,
       graph: [],
+      filter: "",
       page: 1,
     };
   },
@@ -198,12 +227,18 @@ export default {
       return this.page * 6;
     },
 
+    filteredTickers() {
+      return this.tickers.filter((ticker) =>
+        ticker.name.toUpperCase().includes(this.filter.toUpperCase())
+      );
+    },
+
     hasNextPage() {
-      return this.tickers.length > this.endIndex;
+      return this.filteredTickers.length > this.endIndex;
     },
 
     paginatedTickers() {
-      return this.tickers.slice(this.startIndex, this.endIndex);
+      return this.filteredTickers.slice(this.startIndex, this.endIndex);
     },
 
     isTickerExists() {
