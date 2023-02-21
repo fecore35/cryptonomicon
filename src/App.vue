@@ -308,6 +308,7 @@ export default {
   watch: {
     tickers() {
       this.ticker = "";
+      this.filter = "";
       localStorage.setItem("cryptonomicon", JSON.stringify(this.tickers));
     },
 
