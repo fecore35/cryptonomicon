@@ -22,13 +22,16 @@
                 />
               </div>
               <div
-                v-if="false"
+                v-if="similarTickersList.length > 0"
                 class="flex bg-white shadow-md p-1 rounded-md shadow-md flex-wrap"
               >
                 <span
+                  v-for="similarTicker in similarTickersList"
+                  :key="similarTicker.Id"
+                  @click="handleAdd(similarTicker.Symbol)"
                   class="inline-flex items-center px-2 m-1 rounded-md text-xs font-medium bg-gray-300 text-gray-800 cursor-pointer"
                 >
-                  BTC
+                  {{ similarTicker.Symbol }}
                 </span>
               </div>
               <div v-if="isTickerExists" class="text-sm text-red-600">
@@ -195,6 +198,8 @@
 </template>
 
 <script>
+import { getSimilarTickers } from "./api";
+
 export default {
   name: "App",
 
@@ -204,6 +209,7 @@ export default {
       tickers: [],
       currentTicker: null,
       graph: [],
+      similarTickers: [],
       filter: "",
       page: 1,
     };
@@ -230,6 +236,8 @@ export default {
       this.tickers.push(...JSON.parse(tickersFromLocalStorage));
       this.tickers.forEach(({ name }) => this.subscribeToUpdates(name));
     }
+
+    this.similarTickers = await getSimilarTickers();
   },
 
   computed: {
@@ -266,6 +274,24 @@ export default {
         filter: this.filter,
         page: this.page,
       };
+    },
+
+    similarTickersList() {
+      if (this.ticker === "") {
+        return new Array();
+      }
+
+      const showInteractiveTickers = this.similarTickers.filter((ticker) => {
+        if (ticker.FullName.toUpperCase().includes(this.ticker.toUpperCase())) {
+          return ticker;
+        }
+      });
+
+      if (showInteractiveTickers.length > 4) {
+        showInteractiveTickers.length = 4;
+      }
+
+      return showInteractiveTickers;
     },
   },
 
