@@ -212,6 +212,18 @@ export default {
   created: async function () {
     const tickersFromLocalStorage = localStorage.getItem("cryptonomicon");
 
+    const windowData = Object.fromEntries(
+      new URL(window.location).searchParams.entries()
+    );
+
+    if (windowData.filter) {
+      this.filter = windowData.filter;
+    }
+
+    if (windowData.page) {
+      this.page = Number(windowData.page);
+    }
+
     if (tickersFromLocalStorage) {
       this.tickers.push(...JSON.parse(tickersFromLocalStorage));
       this.tickers.forEach(({ name }) => this.subscribeToUpdates(name));
@@ -245,6 +257,13 @@ export default {
       return this.tickers?.find(
         ({ name }) => name.toUpperCase() === this.ticker.toUpperCase()
       );
+    },
+
+    pageStateOptions() {
+      return {
+        filter: this.filter,
+        page: this.page,
+      };
     },
   },
 
@@ -320,6 +339,14 @@ export default {
       if (this.paginatedTickers.length === 0) {
         this.page = Math.max(1, this.page - 1);
       }
+    },
+
+    pageStateOptions() {
+      history.pushState(
+        null,
+        document.title,
+        `${window.location.pathname}?filter=${this.filter}&page=${this.page}`
+      );
     },
   },
 };
