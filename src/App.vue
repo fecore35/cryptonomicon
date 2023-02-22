@@ -216,12 +216,14 @@ export default {
       new URL(window.location).searchParams.entries()
     );
 
+    const page = Number(windowData.page);
+
     if (windowData.filter) {
       this.filter = windowData.filter;
     }
 
-    if (windowData.page) {
-      this.page = Number(windowData.page);
+    if (page) {
+      this.page = page;
     }
 
     if (tickersFromLocalStorage) {
