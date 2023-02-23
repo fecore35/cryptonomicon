@@ -158,7 +158,7 @@
           </h3>
           <div class="flex items-end border-gray-600 border-b border-l h-64">
             <div
-              v-for="(item, idx) in normilizeGraph()"
+              v-for="(item, idx) in normalizedGraph"
               :key="idx"
               :style="{ height: `${item}%` }"
               class="bg-purple-800 border w-10 h-24"
@@ -198,7 +198,11 @@
 </template>
 
 <script>
-import { getSimilarTickers } from "./api";
+import {
+  getSimilarTickers,
+  subscribeToTicker,
+  unsubscribeFromTicker,
+} from "./api";
 
 export default {
   name: "App",
@@ -234,13 +238,26 @@ export default {
 
     if (tickersFromLocalStorage) {
       this.tickers.push(...JSON.parse(tickersFromLocalStorage));
-      this.tickers.forEach(({ name }) => this.subscribeToUpdates(name));
+      this.tickers.forEach(({ name }) => {
+        subscribeToTicker(name, (newPrice) =>
+          this.updateTicker(name, newPrice)
+        );
+      });
     }
 
     this.similarTickers = await getSimilarTickers();
   },
 
   computed: {
+    normalizedGraph() {
+      const maxValue = Math.max(...this.graph);
+      const minValue = Math.min(...this.graph);
+
+      return this.graph.map(
+        (price) => 5 + ((price - minValue) * 95) / (maxValue - minValue)
+      );
+    },
+
     startIndex() {
       return (this.page - 1) * 6;
     },
@@ -309,7 +326,9 @@ export default {
 
       this.tickers = [...this.tickers, newTicker];
 
-      this.subscribeToUpdates(newTicker.name);
+      subscribeToTicker(newTicker.name, (newPrice) =>
+        this.updateTicker(newTicker.name, newPrice)
+      );
     },
 
     handleDelete(deleteTicker) {
@@ -320,35 +339,23 @@ export default {
       if (this.currentTicker?.name === name) {
         this.selectTicker(null);
       }
+
+      unsubscribeFromTicker(deleteTicker.name);
     },
 
     selectTicker(t) {
       this.currentTicker = t;
     },
 
-    normilizeGraph() {
-      const maxValue = Math.max(...this.graph);
-      const minValue = Math.min(...this.graph);
-
-      return this.graph.map(
-        (price) => 5 + ((price - minValue) * 95) / (maxValue - minValue)
-      );
-    },
-
-    subscribeToUpdates(tickerName) {
-      setInterval(async () => {
-        const f = await fetch(
-          `https://min-api.cryptocompare.com/data/price?fsym=${tickerName}&tsyms=USD`
-        );
-        const { USD } = await f.json();
-
-        this.tickers.find((item) => item.name === tickerName).price =
-          USD > 1 ? Number(USD).toFixed(2) : Number(USD).toPrecision(3);
-
-        if (this.currentTicker?.name === tickerName) {
-          this.graph.push(USD);
-        }
-      }, 5000);
+    updateTicker(tickerName, price) {
+      this.tickers
+        .filter((t) => t.name === tickerName)
+        .forEach((t) => {
+          if (t === this.selectedTicker) {
+            this.graph.push(price);
+          }
+          t.price = price;
+        });
     },
   },
 
