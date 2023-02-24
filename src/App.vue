@@ -124,7 +124,7 @@
                   {{ t.name }} - USD
                 </dt>
                 <dd class="mt-1 text-3xl font-semibold text-gray-900">
-                  {{ t.price }}
+                  {{ formatPrice(t.price) }}
                 </dd>
               </div>
               <div class="w-full border-t border-gray-200"></div>
@@ -356,6 +356,14 @@ export default {
           }
           t.price = price;
         });
+    },
+
+    formatPrice(price) {
+      if (price === "-") {
+        return price;
+      }
+
+      return price > 1 ? price.toFixed(2) : price.toPrecision(2);
     },
   },
 
