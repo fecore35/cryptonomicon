@@ -351,7 +351,7 @@ export default {
       this.tickers
         .filter((t) => t.name === tickerName)
         .forEach((t) => {
-          if (t === this.selectedTicker) {
+          if (t === this.currentTicker) {
             this.graph.push(price);
           }
           t.price = price;
