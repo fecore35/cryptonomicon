@@ -156,7 +156,10 @@
           <h3 class="text-lg leading-6 font-medium text-gray-900 my-8">
             {{ currentTicker.name }} - USD
           </h3>
-          <div class="flex items-end border-gray-600 border-b border-l h-64">
+          <div
+            class="flex items-end border-gray-600 border-b border-l h-64"
+            ref="graph"
+          >
             <div
               v-for="(item, idx) in normalizedGraph"
               :key="idx"
@@ -216,6 +219,7 @@ export default {
       similarTickers: [],
       filter: "",
       page: 1,
+      maxGraphElements: 1,
     };
   },
 
@@ -246,6 +250,14 @@ export default {
     }
 
     this.similarTickers = await getSimilarTickers();
+  },
+
+  mounted() {
+    window.addEventListener("resize", this.calculateMaxGraphElements);
+  },
+
+  beforeUnmount() {
+    window.removeEventListener("resize", this.calculateMaxGraphElements);
   },
 
   computed: {
@@ -347,6 +359,10 @@ export default {
       this.currentTicker = t;
     },
 
+    calculateMaxGraphElements() {
+      this.maxGraphElements = (this.$refs.graph?.clientWidth / 38).toFixed();
+    },
+
     updateTicker(tickerName, price) {
       this.tickers
         .filter((t) => t.name === tickerName)
@@ -354,6 +370,14 @@ export default {
           if (t === this.currentTicker) {
             this.graph.push(price);
           }
+
+          if (this.graph.length > this.maxGraphElements) {
+            this.graph = this.graph.slice(
+              this.graph.length - this.maxGraphElements,
+              this.graph.length
+            );
+          }
+
           t.price = price;
         });
     },
