@@ -360,7 +360,11 @@ export default {
     },
 
     calculateMaxGraphElements() {
-      this.maxGraphElements = (this.$refs.graph?.clientWidth / 38).toFixed();
+      if (!this.$refs.graph) {
+        return;
+      }
+
+      this.maxGraphElements = (this.$refs.graph.clientWidth / 38).toFixed();
     },
 
     updateTicker(tickerName, price) {
@@ -400,6 +404,7 @@ export default {
 
     currentTicker() {
       this.graph = [];
+      this.$nextTick(this.calculateMaxGraphElements);
     },
 
     paginatedTickers() {
