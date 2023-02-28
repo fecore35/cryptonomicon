@@ -1,10 +1,15 @@
 const API_KEY =
   "8b02e9c516bc699a72987eedb2e6f81645afedd6a7794d4489320409b1de048a";
-const AGGREGATE_INDEX = "5";
+const messageType = {
+  AGGREGATE_INDEX: "5",
+  INVALID_SUB: "500",
+};
 const tickersHandlers = new Map(); // {}
 const socket = new WebSocket(
   `wss://streamer.cryptocompare.com/v2?api_key=${API_KEY}`
 );
+
+export const uncorrectedTickers = new Array();
 
 export async function getSimilarTickers() {
   const f = await fetch(
@@ -20,8 +25,14 @@ socket.addEventListener("message", (e) => {
     TYPE: type,
     FROMSYMBOL: currency,
     PRICE: newPrice,
+    PARAMETER: parameter,
   } = JSON.parse(e.data);
-  if (type !== AGGREGATE_INDEX || newPrice === undefined) {
+
+  if (type === messageType.INVALID_SUB) {
+    return uncorrectedTickers.push(parameter.split("~")[2]);
+  }
+
+  if (type !== messageType.AGGREGATE_INDEX || newPrice === undefined) {
     return;
   }
 

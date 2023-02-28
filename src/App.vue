@@ -116,7 +116,12 @@
               v-for="t in paginatedTickers"
               :key="t.name"
               @click="selectTicker(t)"
-              :class="currentTicker?.name === t?.name ? 'border-4' : null"
+              :class="[
+                {
+                  'bg-red-100': isUncorrectedTicker(t.name),
+                  'border-4': currentTicker === t,
+                },
+              ]"
               class="bg-white overflow-hidden shadow rounded-lg border-purple-800 border-solid cursor-pointer"
             >
               <div class="px-4 py-5 sm:p-6 text-center">
@@ -205,6 +210,7 @@ import {
   getSimilarTickers,
   subscribeToTicker,
   unsubscribeFromTicker,
+  uncorrectedTickers,
 } from "./api";
 
 export default {
@@ -389,6 +395,10 @@ export default {
       }
 
       return price > 1 ? price.toFixed(2) : price.toPrecision(2);
+    },
+
+    isUncorrectedTicker(tickerName) {
+      return uncorrectedTickers.includes(tickerName);
     },
   },
 
