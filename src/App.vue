@@ -330,11 +330,8 @@ export default {
         return;
       }
 
-      const newTicker = { name: this.ticker, price: "-" };
-
-      if (tickerName) {
-        newTicker.name = tickerName;
-      }
+      const name = tickerName.toUpperCase() ?? this.ticker.toUpperCase();
+      const newTicker = { name: name, price: "-" };
 
       this.tickers = [...this.tickers, newTicker];
 
